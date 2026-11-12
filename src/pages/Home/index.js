@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import './home.css'
 import { Link } from 'react-router-dom'
+import { toast } from 'react-toastify'
 
 export default function Home() {
   const [email, setEmail] = useState('')
@@ -12,7 +13,7 @@ export default function Home() {
     if (email !== '' && password !== '') {
       alert('Teste')
     } else {
-      alert('Preencha todos os campos')
+      toast.warn('Preencha todos os campos')
     }
   }
 
