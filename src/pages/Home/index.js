@@ -11,7 +11,7 @@ export default function Home() {
     e.preventDefault()
 
     if (email !== '' && password !== '') {
-      alert('Teste')
+      toast.success('Logado com sucesso')
     } else {
       toast.warn('Preencha todos os campos')
     }
