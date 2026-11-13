@@ -1,17 +1,28 @@
 import React, { useState } from 'react'
 import './home.css'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { auth } from '../../firebaseconnection'
 import { toast } from 'react-toastify'
+import { signInWithEmailAndPassword } from 'firebase/auth'
 
 export default function Home() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  function handleLogin(e) {
+  const navigate = useNavigate()
+
+  async function handleLogin(e) {
     e.preventDefault()
 
     if (email !== '' && password !== '') {
-      toast.success('Logado com sucesso')
+      await signInWithEmailAndPassword(auth, email, password)
+        .then(() => {
+          // Navegar para o login
+          navigate('/admin', { replace: true })
+        })
+        .catch(() => {
+          console.log('Erro ao efectuar o login')
+        })
     } else {
       toast.warn('Preencha todos os campos')
     }
