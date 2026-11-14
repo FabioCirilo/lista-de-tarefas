@@ -1,13 +1,41 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import './admin.css'
 import { signOut } from 'firebase/auth'
-import { auth } from '../../firebaseconnection'
+import { auth, db } from '../../firebaseconnection'
+import { toast } from 'react-toastify'
+import { addDoc, collection } from 'firebase/firestore'
 export default function Admin() {
   const [tarefaInput, setTarefaInput] = useState('')
+  const [user, setUser] = useState({})
 
-  function handleRegister(e) {
+  useEffect(() => {
+    async function loadTarefas() {
+      const userDetails = localStorage.getItem('@detailsUser')
+      setUser(JSON.parse(userDetails))
+    }
+
+    loadTarefas()
+  }, [])
+
+  async function handleRegister(e) {
     e.preventDefault()
-    alert('Teste')
+    if (tarefaInput === '') {
+      toast.warn('Digite uma tarefa')
+      return
+    }
+
+    await addDoc(collection(db, 'tarefas'), {
+      tarefas: tarefaInput,
+      create: new Date(),
+      uid: user?.uid
+    })
+      .then(() => {
+        toast.success('Tarefa registrada')
+        setTarefaInput('')
+      })
+      .catch(err => {
+        console.log('Erro ao registar ' + err)
+      })
   }
 
   async function handleLogout() {
