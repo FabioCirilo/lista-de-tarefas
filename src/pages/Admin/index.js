@@ -6,6 +6,8 @@ import { toast } from 'react-toastify'
 import {
   addDoc,
   collection,
+  deleteDoc,
+  doc,
   onSnapshot,
   orderBy,
   query,
@@ -75,6 +77,11 @@ export default function Admin() {
     await signOut(auth)
   }
 
+  async function deleteTarefa(id) {
+    const docRef = doc(db, 'tarefas', id)
+    await deleteDoc(docRef)
+  }
+
   return (
     <div className="admin-container">
       <h1>Minhas tarefas</h1>
@@ -91,13 +98,21 @@ export default function Admin() {
         </button>
       </form>
 
-      <article className="list">
-        <p>Estudar javaScript e reactjs hoje a noite</p>
-        <div>
-          <button>Editar</button>
-          <button className="btn-excluir"> Excluir</button>
-        </div>
-      </article>
+      {tarefas.map(item => (
+        <article className="list">
+          <p>{item.tarefa}</p>
+          <div>
+            <button>Editar</button>
+            <button
+              className="btn-excluir"
+              onClick={() => deleteTarefa(item.id)}
+            >
+              {' '}
+              Excluir
+            </button>
+          </div>
+        </article>
+      ))}
 
       <button className="btn-logout" onClick={handleLogout}>
         Sair
