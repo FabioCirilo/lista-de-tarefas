@@ -11,6 +11,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  updateDoc,
   where
 } from 'firebase/firestore'
 export default function Admin() {
@@ -18,6 +19,7 @@ export default function Admin() {
   const [user, setUser] = useState({})
 
   const [tarefas, setTarefas] = useState([])
+  const [edit, setEdit] = useState({})
 
   useEffect(() => {
     async function loadTarefas() {
@@ -59,6 +61,11 @@ export default function Admin() {
       return
     }
 
+    if (edit?.id) {
+      handleUpdateTarefa()
+      return
+    }
+
     await addDoc(collection(db, 'tarefas'), {
       tarefas: tarefaInput,
       create: new Date(),
@@ -82,6 +89,28 @@ export default function Admin() {
     await deleteDoc(docRef)
   }
 
+  async function editarTarefa(item) {
+    setTarefaInput(item.tarefa)
+    setEdit(item)
+  }
+
+  async function handleUpdateTarefa() {
+    const docRef = doc(db, 'tarefas', edit?.id)
+    await updateDoc(docRef, {
+      tarefas: tarefaInput
+    })
+      .then(() => {
+        toast.success('Tarefa atualizada')
+        setTarefaInput('')
+        setEdit({})
+      })
+      .catch(err => {
+        console.log('Erro ao atualizar ' + err)
+        setTarefaInput('')
+        setEdit({})
+      })
+  }
+
   return (
     <div className="admin-container">
       <h1>Minhas tarefas</h1>
@@ -93,16 +122,26 @@ export default function Admin() {
           onChange={e => setTarefaInput(e.target.value)}
           placeholder="Digite sua tarefa"
         />
-        <button className="btn-register" type="submit">
-          Registrar
-        </button>
+        {Object.keys(edit).length > 0 ? (
+          <button
+            className="btn-register"
+            style={{ backgroundColor: '#6add39' }}
+            type="submit"
+          >
+            Atualizar tarefa
+          </button>
+        ) : (
+          <button className="btn-register" type="submit">
+            Registrar tarefa
+          </button>
+        )}
       </form>
 
       {tarefas.map(item => (
         <article className="list">
           <p>{item.tarefa}</p>
           <div>
-            <button>Editar</button>
+            <button onClick={() => editarTarefa(item)}>Editar</button>
             <button
               className="btn-excluir"
               onClick={() => deleteTarefa(item.id)}
