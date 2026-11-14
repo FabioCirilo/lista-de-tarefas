@@ -3,15 +3,48 @@ import './admin.css'
 import { signOut } from 'firebase/auth'
 import { auth, db } from '../../firebaseconnection'
 import { toast } from 'react-toastify'
-import { addDoc, collection } from 'firebase/firestore'
+import {
+  addDoc,
+  collection,
+  onSnapshot,
+  orderBy,
+  query,
+  where
+} from 'firebase/firestore'
 export default function Admin() {
   const [tarefaInput, setTarefaInput] = useState('')
   const [user, setUser] = useState({})
+
+  const [tarefas, setTarefas] = useState([])
 
   useEffect(() => {
     async function loadTarefas() {
       const userDetails = localStorage.getItem('@detailsUser')
       setUser(JSON.parse(userDetails))
+
+      if (userDetails) {
+        const data = JSON.parse(userDetails)
+
+        const tarefasRef = collection(db, 'tarefas')
+        const q = query(
+          tarefasRef,
+          orderBy('create', 'desc'),
+          where('uid', '==', data?.uid)
+        )
+        const unsub = onSnapshot(q, snapshot => {
+          let list = []
+          snapshot.forEach(doc => {
+            list.push({
+              id: doc.id,
+              tarefa: doc.data().tarefas,
+              userUid: doc.data().uid
+            })
+          })
+
+          console.log(list)
+          setTarefas(list)
+        })
+      }
     }
 
     loadTarefas()
