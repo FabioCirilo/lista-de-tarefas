@@ -48,6 +48,7 @@ export default function Admin() {
           console.log(list)
           setTarefas(list)
         })
+        return () => unsub && unsub()
       }
     }
 

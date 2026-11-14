@@ -26,6 +26,7 @@ export default function Private({ children }) {
           setSigned(false)
         }
       })
+      return () => unsub && unsub()
     }
 
     checkLogin()
